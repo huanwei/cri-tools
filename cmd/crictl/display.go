@@ -40,6 +40,11 @@ const (
 	columnInodes    = "INODES"
 	columnDisk      = "DISK"
 	columnCPU       = "CPU %"
+	columnPID		= "PID"
+	columnMountPoint	= "MOUNT POINT"
+	columnLogDir	= "LOG DIR"
+	columnRestartCount	= "Restart Count"
+	columnIP		= "IP"
 )
 
 // display use to output something on screen with table format.

@@ -122,6 +122,7 @@ func main() {
 		configCommand,
 		statsCommand,
 		completionCommand,
+		pidListCommand,
 	}
 
 	app.Flags = []cli.Flag{

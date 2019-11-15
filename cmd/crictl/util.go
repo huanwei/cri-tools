@@ -75,6 +75,19 @@ type listOptions struct {
 	image string
 }
 
+type pidListOptions struct {
+	// pid of container
+	pid string
+	// all containers
+	all bool
+	// state of the sandbox
+	state string
+	// Regular expression pattern to match pod or container
+	nameRegexp string
+	// output format
+	output string
+}
+
 type execOptions struct {
 	// id of container
 	id string
