@@ -139,11 +139,11 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		id := c.Id
 		configRoot := filepath.Join(root, id, "userdata", "config.json")
 		stateRoot := filepath.Join(root, id, "userdata", "state.json")
-		mountPoint := gojsonq.New().File(configRoot).Select("root", "path").String()
+		mountPoint := gojsonq.New().File(configRoot).From("root").From("path").String()
 
 		file := gojsonq.New().File(stateRoot)
-		pid := file.Select("pid").String()
-		IP := file.Select("annotations", "io.kubernetes.cri-o.IP").String()
+		pid := file.From("pid").String()
+		IP := file.From("annotations").From("io.kubernetes.cri-o.IP").String()
 
 		display.AddRow([]string{getTruncatedID(id, ""), ctm, convertContainerState(c.State), c.Metadata.Name,
 			pid, IP, mountPoint})
