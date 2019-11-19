@@ -9,6 +9,12 @@
 			"revisionTime": "2019-04-25T19:49:16Z"
 		},
 		{
+			"checksumSHA1": "60vzGIk4zB8wvjd9tUBhSQepyqE=",
+			"path": "github.com/go-ini/ini",
+			"revision": "87e589f4917038ae250cff2446db7573f47e97ca",
+			"revisionTime": "2019-11-09T21:43:49Z"
+		},
+		{
 			"checksumSHA1": "z7mmGBv+Z8dI0/l0lt/JHrLDDJ4=",
 			"path": "github.com/thedevsaddam/gojsonq",
 			"revision": "e6212fc7ce0e30d414785ae7954454fa84283eb6",
