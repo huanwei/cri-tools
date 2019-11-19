@@ -39,18 +39,6 @@ type hcListResult struct {
 	Containers []hcListMessage
 }
 
-func (h hcListResult) Reset() {
-	panic("implement me")
-}
-
-func (h hcListResult) String() string {
-	panic("implement me")
-}
-
-func (h hcListResult) ProtoMessage() {
-	panic("implement me")
-}
-
 var hcListCommand = cli.Command{
 	Name:  "ls",
 	Usage: "List process of containers",
