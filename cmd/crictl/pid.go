@@ -6,7 +6,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Unknwon/goconfig"
+	"github.com/go-ini/ini"
 	"github.com/docker/go-units"
 	"github.com/ghodss/yaml"
 	"github.com/golang/protobuf/proto"
@@ -128,11 +128,18 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 	display := newTableDisplay(20, 1, 3, ' ', 0)
 	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
 
-	cfg, _ := goconfig.LoadConfigFile(STORAGEROOT)
-	runRoot, _ := cfg.GetValue("storage", "runroot")
-	driver, _ := cfg.GetValue("storage", "driver")
+	cfg, err := ini.Load(STORAGEROOT)
+	if err != nil {
+		return err
+	}
+	sectionStorage, _ := cfg.GetSection("storage")
+	runRoot, _ := sectionStorage.GetKey("runroot")
+	driver, _ := sectionStorage.GetKey("driver")
+	//cfg, _ := goconfig.LoadConfigFile(STORAGEROOT)
+	//runRoot, _ := cfg.GetValue("storage", "runroot")
+	//driver, _ := cfg.GetValue("storage", "driver")
 
-	root := filepath.Join(runRoot, driver+"-containers")
+	root := filepath.Join(runRoot.String(), driver.String()+"-containers")
 
 	for _, c := range r.Containers {
 		if !matchesRegex(opts.nameRegexp, c.Metadata.Name) {
