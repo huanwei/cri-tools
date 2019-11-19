@@ -139,21 +139,15 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		createdAt := time.Unix(0, c.CreatedAt)
 		ctm := units.HumanDuration(time.Now().UTC().Sub(createdAt)) + " ago"
 		id := c.Id
-		cmd := exec.Command("/bin/bash", "-c", "ls "+root+" |grep "+id)
-		stdout, _ := cmd.StdoutPipe()
-		fmt.Println(cmd)
-		result, _ := ioutil.ReadAll(stdout) // 读取输出结果
-		longId := string(result)
-		fmt.Println(longId)
-		configRoot := filepath.Join(root, longId, "userdata", "config.json")
-		stateRoot := filepath.Join(root, longId, "userdata", "state.json")
+		configRoot := filepath.Join(root, id, "userdata", "config.json")
+		stateRoot := filepath.Join(root, id, "userdata", "state.json")
 		mountPoint := gojsonq.New().File(configRoot).Select("root", "path").String()
 
 		file := gojsonq.New().File(stateRoot)
 		pid := file.Select("pid").String()
 		IP := file.Select("annotations", "io.kubernetes.cri-o.IP").String()
 
-		display.AddRow([]string{id, ctm, convertContainerState(c.State), c.Metadata.Name,
+		display.AddRow([]string{getTruncatedID(id, ""), ctm, convertContainerState(c.State), c.Metadata.Name,
 			pid, IP, mountPoint})
 	}
 	_ = display.Flush()
