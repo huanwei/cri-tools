@@ -122,7 +122,7 @@ func main() {
 		configCommand,
 		statsCommand,
 		completionCommand,
-		pidListCommand,
+		hcListCommand,
 	}
 
 	app.Flags = []cli.Flag{

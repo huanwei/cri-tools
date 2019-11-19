@@ -75,7 +75,7 @@ type listOptions struct {
 	image string
 }
 
-type pidListOptions struct {
+type hcListOptions struct {
 	// pid of container
 	pid string
 	// all containers

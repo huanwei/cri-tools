@@ -5,29 +5,54 @@ created by Jiahao@harmonycloud  2019/11/5
 package main
 
 import (
+	"github.com/ghodss/yaml"
 	"fmt"
 	"github.com/containers/storage"
+	"encoding/json"
 	"github.com/docker/go-units"
-	"github.com/ghodss/yaml"
-	"github.com/golang/protobuf/proto"
 	"github.com/tidwall/gjson"
+	"github.com/urfave/cli"
+	"golang.org/x/net/context"
 	"io/ioutil"
+	pb "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 	"log"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/urfave/cli"
-	"golang.org/x/net/context"
-	pb "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 )
 
 const (
 	STORAGEROOT = "/etc/containers/storage.conf"
 )
 
-var pidListCommand = cli.Command{
-	Name:  "pids",
+type hcListMessage struct {
+	ContainerId string
+	ctm string
+	state string
+	name string
+	pid string
+	ip string
+	MountPoint string
+}
+
+type hcListResult struct {
+	Containers []hcListMessage
+}
+
+func (h hcListResult) Reset() {
+	panic("implement me")
+}
+
+func (h hcListResult) String() string {
+	panic("implement me")
+}
+
+func (h hcListResult) ProtoMessage() {
+	panic("implement me")
+}
+
+var hcListCommand = cli.Command{
+	Name:  "ls",
 	Usage: "List process of containers",
 	Flags: []cli.Flag{
 		cli.StringFlag{
@@ -62,7 +87,7 @@ var pidListCommand = cli.Command{
 		if err = getImageClient(context); err != nil {
 			return err
 		}
-		opts := pidListOptions{
+		opts := hcListOptions{
 			all:        context.Bool("all"),
 			pid:        context.String("pid"),
 			state:      context.String("state"),
@@ -70,7 +95,7 @@ var pidListCommand = cli.Command{
 			output:     context.String("output"),
 		}
 
-		if err = pidListContainers(runtimeClient, opts); err != nil {
+		if err = hcListContainers(runtimeClient, opts); err != nil {
 			return fmt.Errorf("listing containers failed: %v", err)
 		}
 
@@ -78,7 +103,7 @@ var pidListCommand = cli.Command{
 	},
 }
 
-func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) error {
+func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error {
 	filter := &pb.ContainerFilter{}
 	st := &pb.ContainerStateValue{}
 	if !opts.all {
@@ -113,24 +138,12 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		return err
 	}
 
-	switch opts.output {
-	case "json":
-		return outputAsJSON(r)
-	case "yaml":
-		return outputAsYAML(r)
-	case "table", "":
-	// continue; output will be generated after the switch block ends.
-	default:
-		return fmt.Errorf("unsupported output format %q", opts.output)
-	}
-
-	display := newTableDisplay(20, 1, 3, ' ', 0)
-	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
-
 	storageOpts := storage.StoreOptions{}
 	storage.ReloadConfigurationFile(STORAGEROOT, &storageOpts)
 
 	root := filepath.Join(storageOpts.GraphRoot, storageOpts.GraphDriverName+"-containers")
+
+	result := hcListResult{}
 	for _, c := range r.Containers {
 		if !matchesRegex(opts.nameRegexp, c.Metadata.Name) {
 			continue
@@ -151,33 +164,60 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		mountPoint := gjson.Get(string(configJson), "root.path").String()
 		pid := gjson.Get(string(stateJson), "pid").String()
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
-		display.AddRow([]string{getTruncatedID(id, ""), ctm, convertContainerState(c.State), c.Metadata.Name,
-			pid, IP, mountPoint})
+		message := hcListMessage{
+			ContainerId: getTruncatedID(id, ""),
+			ctm:	ctm,
+			state: convertContainerState(c.State),
+			name: c.Metadata.Name,
+			pid: pid,
+			ip:IP,
+			MountPoint:mountPoint,
+		}
+		result.Containers = append(result.Containers, message)
+	}
+
+	switch opts.output {
+	case "json":
+		return outputAsJSON(result)
+	case "yaml":
+		return outputAsYAML(result)
+	case "table", "":
+		return outputAsTable(result)
+	default:
+		return fmt.Errorf("unsupported output format %q", opts.output)
+	}
+
+
+	return nil
+}
+
+func outputAsJSON(obj hcListResult) error {
+	jsonBytes, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonBytes))
+	return nil
+}
+
+func outputAsYAML(obj hcListResult) error {
+	yamlBytes, err := yaml.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(yamlBytes))
+	return nil
+}
+
+func outputAsTable(obj hcListResult) error {
+	display := newTableDisplay(20, 1, 3, ' ', 0)
+	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
+
+	for _, r := range obj.Containers {
+
+		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.ctm, r.state, r.name,
+			r.pid, r.ip, r.MountPoint})
 	}
 	_ = display.Flush()
-	return nil
-}
-
-func outputAsJSON(obj proto.Message) error {
-	marshaledJSON, err := protobufObjectToJSON(obj)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(marshaledJSON)
-	return nil
-}
-
-func outputAsYAML(obj proto.Message) error {
-	marshaledJSON, err := protobufObjectToJSON(obj)
-	if err != nil {
-		return err
-	}
-	marshaledYAML, err := yaml.JSONToYAML([]byte(marshaledJSON))
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(marshaledYAML))
 	return nil
 }
