@@ -132,7 +132,7 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 	storage.ReloadConfigurationFile(STORAGEROOT, &storageOpts)
 
 	root := filepath.Join(storageOpts.RunRoot, storageOpts.GraphDriverName+"-containers")
-
+	fmt.Println(root)
 	for _, c := range r.Containers {
 		if !matchesRegex(opts.nameRegexp, c.Metadata.Name) {
 			continue
