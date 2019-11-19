@@ -132,7 +132,6 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 	storage.ReloadConfigurationFile(STORAGEROOT, &storageOpts)
 
 	root := filepath.Join(storageOpts.RunRoot, storageOpts.GraphDriverName+"-containers")
-	fmt.Println(root)
 	for _, c := range r.Containers {
 		if !matchesRegex(opts.nameRegexp, c.Metadata.Name) {
 			continue
@@ -142,9 +141,10 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		id := c.Id
 		cmd := exec.Command("/bin/bash", "-c", "ls "+root+" |grep "+id)
 		stdout, _ := cmd.StdoutPipe()
+		fmt.Println(cmd)
 		result, _ := ioutil.ReadAll(stdout) // 读取输出结果
 		longId := string(result)
-
+		fmt.Println(longId)
 		configRoot := filepath.Join(root, longId, "userdata", "config.json")
 		stateRoot := filepath.Join(root, longId, "userdata", "state.json")
 		mountPoint := gojsonq.New().File(configRoot).Select("root", "path").String()
