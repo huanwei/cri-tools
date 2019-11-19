@@ -150,7 +150,7 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		}
 		mountPoint := gjson.Get(string(configJson), "root.path").String()
 		pid := gjson.Get(string(stateJson), "pid").String()
-		IP := gjson.Get(string(stateJson), "annotations.io.kubernetes.cri-o.IP").String()
+		IP := gjson.Get(string(stateJson), "annotations").Get("io.kubernetes.cri-o.IP").String()
 
 		display.AddRow([]string{getTruncatedID(id, ""), ctm, convertContainerState(c.State), c.Metadata.Name,
 			pid, IP, mountPoint})
