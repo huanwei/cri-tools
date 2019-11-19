@@ -10,7 +10,8 @@ import (
 	"github.com/docker/go-units"
 	"github.com/ghodss/yaml"
 	"github.com/golang/protobuf/proto"
-	"github.com/thedevsaddam/gojsonq"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
@@ -139,11 +140,17 @@ func pidListContainers(client pb.RuntimeServiceClient, opts pidListOptions) erro
 		id := c.Id
 		configRoot := filepath.Join(root, id, "userdata", "config.json")
 		stateRoot := filepath.Join(root, id, "userdata", "state.json")
-		mountPoint := gojsonq.New().File(configRoot).From("root").From("path").String()
-
-		file := gojsonq.New().File(stateRoot)
-		pid := file.From("pid").String()
-		IP := file.From("annotations").From("io.kubernetes.cri-o.IP").String()
+		configJson, err := ioutil.ReadFile(configRoot)
+		if err != nil {
+			return err
+		}
+		stateJson, err := ioutil.ReadFile(stateRoot)
+		if err != nil {
+			return err
+		}
+		mountPoint := gjson.Get(string(configJson), "root.path").String()
+		pid := gjson.Get(string(stateJson), "pid").String()
+		IP := gjson.Get(string(stateJson), "annotations.io.kubernetes.cri-o.IP").String()
 
 		display.AddRow([]string{getTruncatedID(id, ""), ctm, convertContainerState(c.State), c.Metadata.Name,
 			pid, IP, mountPoint})
