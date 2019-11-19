@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "t7K3CynOH4JXxISCWsx9kWwUnow=",
+			"path": "github.com/Unknwon/goconfig",
+			"revision": "3dba17dd7b9ec8509b3621a73a30a4b333eb28da",
+			"revisionTime": "2019-04-25T19:49:16Z"
+		},
+		{
+			"checksumSHA1": "z7mmGBv+Z8dI0/l0lt/JHrLDDJ4=",
+			"path": "github.com/thedevsaddam/gojsonq",
+			"revision": "e6212fc7ce0e30d414785ae7954454fa84283eb6",
+			"revisionTime": "2019-10-15T11:40:31Z"
+		}
+	],
+	"rootPath": "cri-tools"
+}
