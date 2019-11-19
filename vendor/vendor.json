@@ -3,16 +3,9 @@
 	"ignore": "",
 	"package": [
 		{
-			"checksumSHA1": "t7K3CynOH4JXxISCWsx9kWwUnow=",
-			"path": "github.com/Unknwon/goconfig",
-			"revision": "3dba17dd7b9ec8509b3621a73a30a4b333eb28da",
-			"revisionTime": "2019-04-25T19:49:16Z"
-		},
-		{
-			"checksumSHA1": "60vzGIk4zB8wvjd9tUBhSQepyqE=",
-			"path": "github.com/go-ini/ini",
-			"revision": "87e589f4917038ae250cff2446db7573f47e97ca",
-			"revisionTime": "2019-11-09T21:43:49Z"
+			"checksumSHA1": "mQj9pjfnj0UBuhh2PdAZM3zV9m0=",
+			"path": "github.com/containers/storage",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "z7mmGBv+Z8dI0/l0lt/JHrLDDJ4=",
