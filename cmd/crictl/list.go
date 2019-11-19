@@ -5,11 +5,11 @@ created by Jiahao@harmonycloud  2019/11/5
 package main
 
 import (
-	"github.com/ghodss/yaml"
+	"encoding/json"
 	"fmt"
 	"github.com/containers/storage"
-	"encoding/json"
 	"github.com/docker/go-units"
+	"github.com/ghodss/yaml"
 	"github.com/tidwall/gjson"
 	"github.com/urfave/cli"
 	"golang.org/x/net/context"
@@ -27,12 +27,12 @@ const (
 
 type hcListMessage struct {
 	ContainerId string
-	ctm string
-	state string
-	name string
-	pid string
-	ip string
-	MountPoint string
+	CTM         string
+	State       string
+	Name        string
+	PID         string
+	IP          string
+	MountPoint  string
 }
 
 type hcListResult struct {
@@ -166,12 +166,12 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
 		message := hcListMessage{
 			ContainerId: getTruncatedID(id, ""),
-			ctm:	ctm,
-			state: convertContainerState(c.State),
-			name: c.Metadata.Name,
-			pid: pid,
-			ip:IP,
-			MountPoint:mountPoint,
+			CTM:         ctm,
+			State:       convertContainerState(c.State),
+			Name:        c.Metadata.Name,
+			PID:         pid,
+			IP:          IP,
+			MountPoint:  mountPoint,
 		}
 		result.Containers = append(result.Containers, message)
 	}
@@ -186,7 +186,6 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 	default:
 		return fmt.Errorf("unsupported output format %q", opts.output)
 	}
-
 
 	return nil
 }
@@ -214,9 +213,8 @@ func outputAsTable(obj hcListResult) error {
 	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
 
 	for _, r := range obj.Containers {
-
-		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.ctm, r.state, r.name,
-			r.pid, r.ip, r.MountPoint})
+		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.CTM, r.State, r.Name,
+			r.PID, r.IP, r.MountPoint})
 	}
 	_ = display.Flush()
 	return nil
