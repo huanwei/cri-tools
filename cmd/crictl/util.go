@@ -84,6 +84,8 @@ type hcListOptions struct {
 	state string
 	// Regular expression pattern to match pod or container
 	nameRegexp string
+	// out with truncating the id
+	noTrunc bool
 	// output format
 	output string
 }

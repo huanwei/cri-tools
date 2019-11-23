@@ -66,6 +66,10 @@ var hcListCommand = cli.Command{
 			Name:  "output, o",
 			Usage: "Output format, One of: json|yaml|table",
 		},
+		cli.BoolFlag{
+			Name:  "no-trunc",
+			Usage: "Show output without truncating the ID",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		var err error
@@ -80,6 +84,7 @@ var hcListCommand = cli.Command{
 			pid:        context.String("pid"),
 			state:      context.String("state"),
 			nameRegexp: context.String("name"),
+			noTrunc:    context.Bool("no-trunc"),
 			output:     context.String("output"),
 		}
 
@@ -152,8 +157,11 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		mountPoint := gjson.Get(string(configJson), "root.path").String()
 		pid := gjson.Get(string(stateJson), "pid").String()
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
+		if !opts.noTrunc {
+			id = getTruncatedID(id, "")
+		}
 		message := hcListMessage{
-			ContainerId: getTruncatedID(id, ""),
+			ContainerId: id,
 			CTM:         ctm,
 			State:       convertContainerState(c.State),
 			Name:        c.Metadata.Name,
