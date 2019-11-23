@@ -190,7 +190,7 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 }
 
 func outputAsJSON(obj hcListResult) error {
-	jsonBytes, err := json.Marshal(obj)
+	jsonBytes, err := json.MarshalIndent(obj, "", "\t")
 	if err != nil {
 		return err
 	}
