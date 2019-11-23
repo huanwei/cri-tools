@@ -49,12 +49,12 @@ var hcListCommand = cli.Command{
 			Usage: "Filter by pid",
 		},
 		cli.StringFlag{
-			Name:  "state",
+			Name:  "state, s",
 			Value: "",
 			Usage: "Filter by container state",
 		},
 		cli.StringFlag{
-			Name:  "name",
+			Name:  "name, n",
 			Value: "",
 			Usage: "filter by container name regular expression pattern",
 		},
@@ -161,6 +161,17 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			IP:          IP,
 			MountPoint:  mountPoint,
 		}
+
+		// filter by pid
+		if opts.pid != "" {
+			if opts.pid == pid {
+				result.Containers = append(result.Containers, message)
+				break
+			} else {
+				continue
+			}
+		}
+
 		result.Containers = append(result.Containers, message)
 	}
 
