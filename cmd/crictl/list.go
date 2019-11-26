@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/containers/storage"
 	"github.com/docker/go-units"
 	"github.com/ghodss/yaml"
 	"github.com/tidwall/gjson"
@@ -131,8 +130,8 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		return err
 	}
 
-	storageOpts := storage.StoreOptions{}
-	storage.ReloadConfigurationFile(STORAGEROOT, &storageOpts)
+	storageOpts := StoreOptions{}
+	ReloadConfigurationFile(STORAGEROOT, &storageOpts)
 
 	root := filepath.Join(storageOpts.GraphRoot, storageOpts.GraphDriverName+"-containers")
 
