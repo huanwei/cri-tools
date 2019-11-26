@@ -156,7 +156,6 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		mountPoint := gjson.Get(string(configJson), "root.path").String()
 		pid := gjson.Get(string(stateJson), "pid").String()
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
-		fmt.Println(opts.noTrunc)
 		if !opts.noTrunc {
 			id = getTruncatedID(id, "")
 		}
