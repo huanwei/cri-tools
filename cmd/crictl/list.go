@@ -157,7 +157,6 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		mountPoint := gjson.Get(string(configJson), "root.path").String()
 		pid := gjson.Get(string(stateJson), "pid").String()
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
-		fmt.Println(opts.noTrunc)
 		if !opts.noTrunc {
 			id = getTruncatedID(id, "")
 		}
@@ -221,7 +220,7 @@ func outputAsTable(obj hcListResult) error {
 	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
 
 	for _, r := range obj.Containers {
-		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.CTM, r.State, r.Name,
+		display.AddRow([]string{r.ContainerId, r.CTM, r.State, r.Name,
 			r.PID, r.IP, r.MountPoint})
 	}
 	_ = display.Flush()
