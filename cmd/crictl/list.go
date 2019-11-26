@@ -1,7 +1,3 @@
-/*
-created by Jiahao@harmonycloud  2019/11/5
-*/
-
 package main
 
 import (
