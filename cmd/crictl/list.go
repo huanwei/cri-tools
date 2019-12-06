@@ -18,6 +18,7 @@ import (
 
 const (
 	STORAGEROOT = "/etc/containers/storage.conf"
+	PREFIX      = "/harmonycloud"
 )
 
 type hcListMessage struct {
@@ -29,7 +30,11 @@ type hcListMessage struct {
 	IP          string
 	MountPoint  string
 }
-
+type volumn struct {
+	Container_path string
+	Host_path      string
+	Readonly       bool
+}
 type hcListResult struct {
 	Containers []hcListMessage
 }
@@ -149,7 +154,21 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 		if err != nil {
 			return err
 		}
-		mountPoint := gjson.Get(string(configJson), "root.path").String()
+		//mountPoint := gjson.Get(string(configJson), "root.path").String()
+		volumnsJson := gjson.Get(string(configJson), "io.kubernetes.cri-o.Volumes").String()
+		var volumns []volumn
+		err = json.Unmarshal([]byte(volumnsJson), &volumns)
+		if err != nil {
+			return err
+		}
+		var location string
+		for _, v := range volumns {
+			if v.Container_path == v.Host_path && validatePath(v.Container_path) {
+				location = v.Container_path
+				break
+			}
+		}
+
 		pid := gjson.Get(string(stateJson), "pid").String()
 		IP := gjson.Get(string(stateJson), "annotations.io\\.kubernetes\\.cri-o\\.IP").String()
 		if !opts.noTrunc {
@@ -162,7 +181,7 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			Name:        c.Metadata.Name,
 			PID:         pid,
 			IP:          IP,
-			MountPoint:  mountPoint,
+			MountPoint:  location,
 		}
 
 		// filter by pid
@@ -190,6 +209,13 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 	}
 
 	return nil
+}
+
+func validatePath(path string) bool {
+	if strings.Contains(path, PREFIX) {
+		return true
+	}
+	return false
 }
 
 func outputAsJSON(obj hcListResult) error {
