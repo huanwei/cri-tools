@@ -155,7 +155,7 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			return err
 		}
 		//mountPoint := gjson.Get(string(configJson), "root.path").String()
-		volumnsJson := gjson.Get(string(configJson), "io.kubernetes.cri-o.Volumes").String()
+		volumnsJson := gjson.Get(string(configJson), "annotations.io\\.kubernetes\\.cri-o\\.Volumes").String()
 		var volumns []volumn
 		err = json.Unmarshal([]byte(volumnsJson), &volumns)
 		if err != nil {
