@@ -238,11 +238,10 @@ func outputAsYAML(obj hcListResult) error {
 
 func outputAsTable(obj hcListResult) error {
 	display := newTableDisplay(20, 1, 3, ' ', 0)
-	display.AddRow([]string{columnContainer, columnCreated, columnState, columnName, columnPID, columnIP, columnMountPoint})
+	display.AddRow([]string{columnInstanceID, columnName, columnState, columnCreated, columnDirectory, columnIP})
 
 	for _, r := range obj.Containers {
-		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.CTM, r.State, r.Name,
-			r.PID, r.IP, r.MountPoint})
+		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.Name, r.State, r.CTM, r.MountPoint, r.IP})
 	}
 	_ = display.Flush()
 	return nil
