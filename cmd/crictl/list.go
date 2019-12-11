@@ -194,7 +194,9 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			}
 		}
 
-		result.Containers = append(result.Containers, message)
+		if message.MountPoint != "" {
+			result.Containers = append(result.Containers, message)
+		}
 	}
 
 	switch opts.output {
