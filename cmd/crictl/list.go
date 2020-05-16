@@ -184,6 +184,10 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			MountPoint:  location,
 		}
 
+		if message.MountPoint == "" {
+			continue
+		}
+
 		// filter by pid
 		if opts.pid != "" {
 			if opts.pid == pid {
@@ -194,9 +198,7 @@ func hcListContainers(client pb.RuntimeServiceClient, opts hcListOptions) error 
 			}
 		}
 
-		if message.MountPoint != "" {
-			result.Containers = append(result.Containers, message)
-		}
+		result.Containers = append(result.Containers, message)
 	}
 
 	switch opts.output {
@@ -240,10 +242,10 @@ func outputAsYAML(obj hcListResult) error {
 
 func outputAsTable(obj hcListResult) error {
 	display := newTableDisplay(20, 1, 3, ' ', 0)
-	display.AddRow([]string{columnInstanceID, columnName, columnState, columnCreated, columnDirectory, columnIP})
+	display.AddRow([]string{columnInstanceID, columnName, columnState, columnCreated, columnDirectory, columnIP, columnPID})
 
 	for _, r := range obj.Containers {
-		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.Name, r.State, r.CTM, r.MountPoint, r.IP})
+		display.AddRow([]string{getTruncatedID(r.ContainerId, ""), r.Name, r.State, r.CTM, r.MountPoint, r.IP, r.PID})
 	}
 	_ = display.Flush()
 	return nil
